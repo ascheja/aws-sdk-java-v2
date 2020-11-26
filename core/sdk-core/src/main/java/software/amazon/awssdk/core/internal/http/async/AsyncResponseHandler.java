@@ -15,11 +15,15 @@
 
 package software.amazon.awssdk.core.internal.http.async;
 
+
+import static software.amazon.awssdk.core.interceptor.SdkInternalExecutionAttribute.FUTURE_COMPLETION_EXECUTOR;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -52,12 +56,15 @@ public final class AsyncResponseHandler<T> implements TransformingAsyncResponseH
     private final ExecutionAttributes executionAttributes;
     private final Function<SdkHttpFullResponse, SdkHttpFullResponse> crc32Validator;
     private SdkHttpFullResponse.Builder httpResponse;
+    private final Executor executor;
 
     public AsyncResponseHandler(HttpResponseHandler<T> responseHandler,
                                 Function<SdkHttpFullResponse, SdkHttpFullResponse> crc32Validator,
                                 ExecutionAttributes executionAttributes) {
         this.responseHandler = responseHandler;
         this.executionAttributes = executionAttributes;
+        this.executor = executionAttributes.getAttribute(FUTURE_COMPLETION_EXECUTOR);
+
         this.crc32Validator = crc32Validator;
     }
 
@@ -79,7 +86,7 @@ public final class AsyncResponseHandler<T> implements TransformingAsyncResponseH
     @Override
     public CompletableFuture<T> prepare() {
         streamFuture = new CompletableFuture<>();
-        return streamFuture.thenCompose(baos -> {
+        return streamFuture.thenComposeAsync(baos -> {
             ByteArrayInputStream content = new ByteArrayInputStream(baos.toByteArray());
             // Ignore aborts - we already have all of the content.
             AbortableInputStream abortableContent = AbortableInputStream.create(content);
@@ -90,7 +97,7 @@ public final class AsyncResponseHandler<T> implements TransformingAsyncResponseH
             } catch (Exception e) {
                 return CompletableFutureUtils.failedFuture(e);
             }
-        });
+        }, executor);
     }
 
     private static class BaosSubscriber implements Subscriber<ByteBuffer> {

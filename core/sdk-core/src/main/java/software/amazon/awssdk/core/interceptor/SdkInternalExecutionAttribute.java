@@ -15,6 +15,7 @@
 
 package software.amazon.awssdk.core.interceptor;
 
+import java.util.concurrent.Executor;
 import software.amazon.awssdk.annotations.SdkProtectedApi;
 import software.amazon.awssdk.core.interceptor.trait.HttpChecksumRequired;
 
@@ -32,6 +33,8 @@ public final class SdkInternalExecutionAttribute extends SdkExecutionAttribute {
 
     public static final ExecutionAttribute<HttpChecksumRequired> HTTP_CHECKSUM_REQUIRED =
         new ExecutionAttribute<>("HttpChecksumRequired");
+    public static final ExecutionAttribute<Executor> FUTURE_COMPLETION_EXECUTOR = new ExecutionAttribute<>(
+        "FutureCompletionExecutor");
 
     private SdkInternalExecutionAttribute() {
     }

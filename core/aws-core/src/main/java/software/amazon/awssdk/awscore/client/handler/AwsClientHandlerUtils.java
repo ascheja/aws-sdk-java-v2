@@ -15,6 +15,7 @@
 
 package software.amazon.awssdk.awscore.client.handler;
 
+import static software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR;
 import static software.amazon.awssdk.utils.CollectionUtils.firstIfPresent;
 
 import java.io.IOException;
@@ -89,6 +90,7 @@ public final class AwsClientHandlerUtils {
             .putAttribute(AwsExecutionAttribute.ENDPOINT_PREFIX, clientConfig.option(AwsClientOption.ENDPOINT_PREFIX))
             .putAttribute(AwsSignerExecutionAttribute.SIGNING_REGION, clientConfig.option(AwsClientOption.SIGNING_REGION))
             .putAttribute(SdkInternalExecutionAttribute.IS_FULL_DUPLEX, executionParams.isFullDuplex())
+            .putAttribute(SdkInternalExecutionAttribute.FUTURE_COMPLETION_EXECUTOR, clientConfig.option(FUTURE_COMPLETION_EXECUTOR))
             .putAttribute(SdkExecutionAttribute.CLIENT_TYPE, clientConfig.option(SdkClientOption.CLIENT_TYPE))
             .putAttribute(SdkExecutionAttribute.SERVICE_NAME, clientConfig.option(SdkClientOption.SERVICE_NAME))
             .putAttribute(SdkExecutionAttribute.OPERATION_NAME, executionParams.getOperationName())
